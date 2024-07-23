@@ -11,9 +11,14 @@ class BookingController extends Controller
 {
     public function index()
     {
-        $histories = BookingHistory::all();
+        $histories = BookingHistory::select('date', 'time')->get();
+        $bookingData = $histories->groupBy('date')->map(function ($group) {
+            return $group->pluck('time');
+        })->toArray();
 
-        return view('booking', compact('histories'));
+        return view('booking', [
+            'bookingData' => json_encode($bookingData, JSON_UNESCAPED_SLASHES)
+        ]);
     }
 
     public function submit(Request $request)
